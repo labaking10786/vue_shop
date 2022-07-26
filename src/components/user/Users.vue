@@ -42,7 +42,7 @@
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
             </el-tooltip>
             <el-tooltip effect="dark" content="設定角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini" @click="edit(scope.row.id)"></el-button>
+              <el-button type="warning" icon="el-icon-setting" size="mini" @click="showSetRoleDialog(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -110,6 +110,32 @@
       </span>
     </el-dialog>
 
+    <!-- 設定角色 Dialog -->
+    <el-dialog
+      title="設定角色"
+      :visible.sync="setRoleDialogVisible"
+      width="50%"
+      @close="setRoleDialogClosed"
+    >
+      <div>
+        <p>當前的用戶:{{userInfo.username}}</p>
+        <p>當前的角色:{{userInfo.role_name}}</p>
+        <p>分配新角色:
+          <el-select v-model="selectedRoleId" placeholder="請選擇">
+            <el-option
+              v-for="item of rolesList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleInfo">確  定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -178,7 +204,12 @@ export default {
           { required: true, message: '請輸入電話', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
         ]
-      }
+      },
+      setRoleDialogVisible: false,
+      // 需要備設定角色的用戶
+      userInfo: {},
+      rolesList: [],
+      selectedRoleId: ''
     }
   },
   created () {
@@ -231,7 +262,7 @@ export default {
     // 展示編輯用戶 Dailog
     async showEditDialog (id) {
       const { data: res } = await this.$http.get(`users/${id}`)
-      if (res.meta.status !== 200) return this.$message.error('查詢用戶失敗')
+      if (res.meta.status !== 200) return this.$message.error('取用戶失敗')
       this.editForm = res.data
       this.editDialogVisible = true
     },
@@ -267,9 +298,29 @@ export default {
       if (res.meta.status !== 200) return this.$message.error('刪除失敗')
       this.$message.success('刪除成功')
       this.getUserList()
+    },
+    async showSetRoleDialog (userInfo) {
+      this.userInfo = userInfo
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200) return this.$message.error('取角色列表失敗')
+      this.rolesList = res.data
+      this.setRoleDialogVisible = true
+    },
+    async saveRoleInfo () {
+      if (!this.selectedRoleId) return this.$message.error('請選擇要分配的角色')
+      const { data: res } = await this.$http.put(`users/${this.userInfo.id}/role`, { rid: this.selectedRoleId })
+      if (res.meta.status !== 200) return this.$message.error('更新角色失敗')
+
+      this.$message.success('更新角色成功')
+      this.getUserList()
+      this.setRoleDialogVisible = false
+    },
+    setRoleDialogClosed () {
+      this.selectedRoleId = ''
+      this.userInfo = {}
     }
   }
 }
 </script>
 
-<style lang="less" scope></style>
+<style lang="less" scoped></style>
