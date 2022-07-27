@@ -84,7 +84,6 @@
         <el-button type="primary" @click="addCate">確  定</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
