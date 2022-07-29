@@ -47,7 +47,9 @@ import {
   Step,
   CheckboxGroup,
   Checkbox,
-  Upload
+  Upload,
+  Timeline,
+  TimelineItem
 } from 'element-ui'
 
 import 'element-ui/lib/theme-chalk/index.css'
@@ -106,6 +108,8 @@ Vue.use(Step)
 Vue.use(CheckboxGroup)
 Vue.use(Checkbox)
 Vue.use(Upload)
+Vue.use(Timeline)
+Vue.use(TimelineItem)
 
 Vue.config.productionTip = false
 Vue.component('tree-table', TreeTable)

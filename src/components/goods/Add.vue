@@ -234,7 +234,6 @@ export default {
       })
 
       form.attrs = this.addForm.attrs
-      console.log(form)
       const { data: res } = await this.$http.post('goods', form)
       if (res.meta.status !== 201) return this.$message.error('增加商品失敗')
       this.$message.success('增加商品成功')
